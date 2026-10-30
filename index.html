@@ -1,0 +1,588 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeQuest 100 — Coding Adventure</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    :root {
+      --bg:#0b1020; --panel:#151d33; --panel2:#1b2743;
+      --text:#f4f6ff; --muted:#aab5d1; --accent:#8ea0ff;
+      --border:#303d5e; --green:#4bd3a1; --red:#ff9696;
+    }
+
+    * { box-sizing:border-box; }
+
+    body {
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Arial,sans-serif;
+    }
+
+    button,input,select,textarea { font:inherit; }
+    button { cursor:pointer; }
+    .hidden { display:none !important; }
+    .muted { color:var(--muted); line-height:1.55; }
+
+    .page {
+      width:min(1150px,100%);
+      margin:auto;
+      padding:22px;
+    }
+
+    .brand {
+      font-size:26px;
+      font-weight:800;
+      letter-spacing:-.5px;
+    }
+
+    .brand span { color:var(--accent); }
+
+    .panel {
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:22px;
+      margin-bottom:20px;
+    }
+
+    .auth-wrap {
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+
+    .auth-card { width:100%; max-width:460px; }
+    h1,h2,h3 { margin-top:0; }
+
+    label {
+      display:block;
+      margin:13px 0 7px;
+      font-size:14px;
+    }
+
+    input,select,textarea {
+      width:100%;
+      border:1px solid var(--border);
+      background:#0d1428;
+      color:var(--text);
+      padding:12px;
+      border-radius:9px;
+    }
+
+    textarea {
+      min-height:160px;
+      resize:vertical;
+      font-family:Consolas,monospace;
+      line-height:1.5;
+    }
+
+    .btn {
+      padding:12px 16px;
+      border:0;
+      border-radius:9px;
+      background:var(--accent);
+      color:#0b1020;
+      font-weight:700;
+    }
+
+    .btn-secondary {
+      background:#273452;
+      border:1px solid #425174;
+      color:var(--text);
+    }
+
+    .btn-full { width:100%; margin-top:16px; }
+
+    .text-btn {
+      border:0;
+      padding:7px 0;
+      background:transparent;
+      color:#b5c0ff;
+      font-weight:700;
+    }
+
+    .message {
+      min-height:20px;
+      overflow-wrap:anywhere;
+      line-height:1.5;
+    }
+
+    .topbar {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      gap:14px;
+      margin-bottom:22px;
+    }
+
+    .row {
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
+
+    .stats,.course-grid,.difficulty-grid,.level-grid {
+      display:grid;
+      gap:12px;
+    }
+
+    .stats { grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); }
+    .course-grid { grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); }
+    .difficulty-grid { grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+    .level-grid { grid-template-columns:repeat(auto-fill,minmax(58px,1fr)); }
+
+    .stat,.course-card,.difficulty-card {
+      background:var(--panel2);
+      border:1px solid var(--border);
+      padding:16px;
+      border-radius:13px;
+    }
+
+    .course-card,.difficulty-card {
+      color:var(--text);
+      text-align:left;
+    }
+
+    .course-card.active,.difficulty-card.active {
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px var(--accent);
+    }
+
+    .level {
+      min-height:50px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:var(--panel2);
+      color:var(--text);
+    }
+
+    .level.done { background:#164538; border-color:#2c9e7a; }
+    .level.current { border:2px solid var(--accent); }
+    .level.locked { opacity:.45; cursor:not-allowed; }
+
+    .bar {
+      height:9px;
+      background:#26324f;
+      border-radius:20px;
+      overflow:hidden;
+    }
+
+    .bar-fill {
+      height:100%;
+      width:0;
+      background:var(--green);
+      transition:width .2s;
+    }
+
+    .modal {
+      position:fixed;
+      inset:0;
+      z-index:50;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      overflow:auto;
+      background:#000b;
+    }
+
+    .modal-card {
+      width:min(760px,100%);
+      max-height:94vh;
+      overflow:auto;
+    }
+
+    pre {
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+      background:#080d19;
+      border:1px solid #283451;
+      border-radius:10px;
+      padding:15px;
+      color:#dce4ff;
+    }
+
+    .hint-box {
+      background:#222d4b;
+      padding:12px;
+      border-radius:10px;
+      margin:12px 0;
+    }
+
+    .help-request {
+      background:var(--panel2);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:14px;
+      margin:12px 0;
+      overflow-wrap:anywhere;
+    }
+
+    .help-request p {
+      white-space:pre-wrap;
+      line-height:1.5;
+    }
+
+    .help-status {
+      display:inline-block;
+      border-radius:99px;
+      background:#273452;
+      padding:5px 9px;
+      font-size:12px;
+      margin:5px 0;
+    }
+
+    #help-message {
+      min-height:110px;
+      font-family:Arial,sans-serif;
+    }
+
+    .badge {
+      display:inline-block;
+      background:#273452;
+      border-radius:99px;
+      padding:6px 10px;
+      color:#c7d0ff;
+      font-size:12px;
+    }
+
+    @media(max-width:520px) {
+      .page { padding:13px; }
+      .panel { padding:17px; }
+      .brand { font-size:23px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- LOGIN AND REGISTRATION -->
+  <section id="auth-screen" class="auth-wrap">
+    <div class="panel auth-card">
+      <div class="brand">CodeQuest <span>100</span></div>
+      <p class="muted">Your coding adventure starts here.</p>
+
+      <form id="login-form">
+        <h2>Welcome Back!</h2>
+        <p class="muted">Login to continue from your saved progress.</p>
+
+        <label for="login-email">Email address</label>
+        <input id="login-email" type="email" autocomplete="email"
+          required placeholder="you@example.com">
+
+        <label for="login-password">Password</label>
+        <input id="login-password" type="password"
+          autocomplete="current-password" required placeholder="Enter password">
+
+        <button id="forgot-button" class="text-btn" type="button">
+          Forgot Password?
+        </button>
+
+        <button class="btn btn-full" type="submit">Login</button>
+
+        <p class="muted">
+          New here?
+          <button id="show-register" class="text-btn" type="button">
+            Create Account
+          </button>
+        </p>
+      </form>
+
+      <form id="register-form" class="hidden">
+        <h2>Create Your Account</h2>
+        <p class="muted">Register once and keep your learning progress.</p>
+
+        <label for="reg-name">Full name</label>
+        <input id="reg-name" type="text" autocomplete="name" required>
+
+        <label for="reg-email">Email address</label>
+        <input id="reg-email" type="email" autocomplete="email" required>
+
+        <label for="reg-password">Password (minimum 8 characters)</label>
+        <input id="reg-password" type="password" minlength="8"
+          autocomplete="new-password" required>
+
+        <label for="reg-phone">Phone number</label>
+        <input id="reg-phone" type="tel" autocomplete="tel" placeholder="Optional">
+
+        <label for="reg-college">College name</label>
+        <input id="reg-college" type="text" required>
+
+        <label for="reg-relationship">Relationship details</label>
+        <select id="reg-relationship" required>
+          <option value="">Choose one</option>
+          <option value="Son of">Son of</option>
+          <option value="Daughter of">Daughter of</option>
+          <option value="Wife of">Wife of</option>
+        </select>
+
+        <label for="reg-related-name">Related person's name</label>
+        <input id="reg-related-name" type="text" required>
+
+        <button class="btn btn-full" type="submit">Create Account</button>
+
+        <p class="muted">
+          Already have an account?
+          <button id="show-login" class="text-btn" type="button">Login</button>
+        </p>
+      </form>
+
+      <p id="auth-message" class="message" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!-- PASSWORD UPDATE SCREEN -->
+  <section id="reset-screen" class="auth-wrap hidden">
+    <div class="panel auth-card">
+      <div class="brand">CodeQuest <span>100</span></div>
+      <h2>Choose a New Password</h2>
+      <p class="muted">Open this page from your Supabase password-reset email link.</p>
+
+      <form id="reset-form">
+        <label for="new-password">New password</label>
+        <input id="new-password" type="password" minlength="8"
+          required autocomplete="new-password">
+
+        <label for="confirm-password">Confirm new password</label>
+        <input id="confirm-password" type="password" minlength="8"
+          required autocomplete="new-password">
+
+        <button class="btn btn-full" type="submit">Update Password</button>
+      </form>
+
+      <p id="reset-message" class="message" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!-- MAIN DASHBOARD -->
+  <main id="app-screen" class="page hidden">
+    <header class="topbar">
+      <div>
+        <div class="brand">CodeQuest <span>100</span></div>
+        <div class="muted">YOUR CODING ADVENTURE</div>
+      </div>
+
+      <div class="row">
+        <span class="badge">⚡ <strong id="header-xp">0</strong> XP</span>
+        <button id="profile-button" class="btn btn-secondary" type="button">👤 Profile</button>
+        <button id="help-center-button" class="btn btn-secondary" type="button">🛟 Help Center</button>
+        <button id="logout-button" class="btn btn-secondary" type="button">Logout</button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <h1>Ready to level up?</h1>
+      <p class="muted">Learn one concept at a time. Complete lessons to earn XP and unlock more levels.</p>
+
+      <div class="stats">
+        <div class="stat">
+          <p class="muted">Total XP</p>
+          <h2 id="total-xp">0</h2>
+        </div>
+        <div class="stat">
+          <p class="muted">Completed Levels</p>
+          <h2 id="completed-count">0 / 300</h2>
+        </div>
+        <div class="stat">
+          <p class="muted">Current Rank</p>
+          <h2 id="rank-name">Rookie Coder</h2>
+        </div>
+      </div>
+
+      <p class="muted">Overall progress</p>
+      <div class="bar"><div id="overall-progress" class="bar-fill"></div></div>
+    </section>
+
+    <section class="panel">
+      <h2>1. Choose a Course</h2>
+      <div class="course-grid">
+        <button class="course-card active" data-course="c" type="button">
+          <h3>💻 C Programming</h3>
+          <p class="muted">Variables, conditions, loops, arrays and functions.</p>
+        </button>
+
+        <button class="course-card" data-course="python" type="button">
+          <h3>🐍 Python</h3>
+          <p class="muted">Syntax, data, decisions, loops and functions.</p>
+        </button>
+
+        <button class="course-card" data-course="web" type="button">
+          <h3>🌐 Web Development</h3>
+          <p class="muted">HTML, CSS and JavaScript foundations.</p>
+        </button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>2. Choose Difficulty</h2>
+      <div class="difficulty-grid">
+        <button class="difficulty-card active" data-difficulty="beginner" type="button">
+          <h3>🌱 Beginner</h3>
+          <p class="muted">Levels 1–30</p>
+        </button>
+
+        <button class="difficulty-card" data-difficulty="medium" type="button">
+          <h3>⚡ Medium</h3>
+          <p class="muted">Levels 31–70</p>
+        </button>
+
+        <button class="difficulty-card" data-difficulty="hard" type="button">
+          <h3>🔥 Hard</h3>
+          <p class="muted">Levels 71–100</p>
+        </button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="topbar">
+        <div>
+          <h2 id="levels-title">Beginner Levels</h2>
+          <p id="levels-description" class="muted">Complete each level to unlock the next one.</p>
+        </div>
+        <span id="course-badge" class="badge">C Programming</span>
+      </div>
+
+      <div id="level-grid" class="level-grid"></div>
+    </section>
+
+    <p id="app-message" class="message" role="status" aria-live="polite"></p>
+  </main>
+
+  <!-- LESSON WINDOW -->
+  <div id="lesson-modal" class="modal hidden">
+    <div class="panel modal-card">
+      <div class="topbar">
+        <div>
+          <span id="lesson-difficulty" class="badge">Beginner</span>
+          <h2 id="lesson-title">Lesson title</h2>
+        </div>
+        <button id="close-lesson" class="btn btn-secondary" type="button">Close</button>
+      </div>
+
+      <p id="lesson-explanation" class="muted"></p>
+      <h3>Example</h3>
+      <pre id="lesson-example"></pre>
+      <h3>Your Mission</h3>
+      <p id="lesson-mission"></p>
+
+      <button id="show-hint" class="btn btn-secondary" type="button">Show Hint</button>
+      <div id="hint-box" class="hint-box hidden"></div>
+
+      <label for="answer-editor">Your answer / code</label>
+      <textarea id="answer-editor" spellcheck="false" placeholder="Type your answer here..."></textarea>
+
+      <div class="row" style="margin-top:12px">
+        <button id="check-answer" class="btn" type="button">Check Answer</button>
+        <button id="show-solution" class="btn btn-secondary" type="button">Show Example Again</button>
+      </div>
+
+      <p id="lesson-message" class="message" role="status" aria-live="polite"></p>
+      <button id="complete-lesson" class="btn btn-full hidden" type="button">Complete Level and Earn XP</button>
+    </div>
+  </div>
+
+  <!-- PROFILE WINDOW -->
+  <div id="profile-modal" class="modal hidden">
+    <div class="panel modal-card">
+      <div class="topbar">
+        <h2>Student Profile</h2>
+        <button id="close-profile" class="btn btn-secondary" type="button">Close</button>
+      </div>
+
+      <form id="profile-form">
+        <label for="profile-name">Full name</label>
+        <input id="profile-name" type="text" required>
+
+        <label for="profile-email">Email address</label>
+        <input id="profile-email" type="email" disabled>
+
+        <label for="profile-phone">Phone number</label>
+        <input id="profile-phone" type="tel">
+
+        <label for="profile-college">College name</label>
+        <input id="profile-college" type="text" required>
+
+        <label for="profile-relationship">Relationship details</label>
+        <select id="profile-relationship" required>
+          <option value="Son of">Son of</option>
+          <option value="Daughter of">Daughter of</option>
+          <option value="Wife of">Wife of</option>
+        </select>
+
+        <label for="profile-related-name">Related person's name</label>
+        <input id="profile-related-name" type="text" required>
+
+        <button class="btn btn-full" type="submit">Save Profile</button>
+      </form>
+
+      <p id="profile-message" class="message" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <!-- HELP CENTER WINDOW -->
+  <div id="help-center-modal" class="modal hidden">
+    <div class="panel modal-card">
+      <div class="topbar">
+        <div>
+          <h2>🛟 Help Center</h2>
+          <p class="muted">Tell us what you need help with. Never include your password.</p>
+        </div>
+        <button id="close-help-center" class="btn btn-secondary" type="button">Close</button>
+      </div>
+
+      <form id="help-request-form">
+        <label for="help-category">What do you need help with?</label>
+        <select id="help-category" required>
+          <option value="">Choose a topic</option>
+          <option value="Login or account">Login or account</option>
+          <option value="Profile details">Profile details</option>
+          <option value="Course or level">Course or level</option>
+          <option value="Progress or XP">Progress or XP</option>
+          <option value="Website bug">Website bug</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <label for="help-message">Describe your issue</label>
+        <textarea id="help-message" maxlength="3000" required
+          placeholder="Explain what happened and what you expected..."></textarea>
+
+        <button id="submit-help-request" class="btn btn-full" type="submit">Submit Request</button>
+      </form>
+
+      <p id="help-center-message" class="message" role="status" aria-live="polite"></p>
+
+      <hr style="border:0;border-top:1px solid var(--border);margin:22px 0;">
+
+      <div class="topbar">
+        <div>
+          <h3>My Requests</h3>
+          <p class="muted">Check your submitted requests and any reply.</p>
+        </div>
+        <button id="refresh-help-requests" class="btn btn-secondary" type="button">Refresh</button>
+      </div>
+
+      <div id="help-requests-list">
+        <p class="muted">Your requests will appear here.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+
+  <footer style="text-align:center;padding:20px;color:#a0aec0;font-size:14px;">
+    Created by <strong style="color:#7c5cff;">Lucky[LC]</strong>
+    © 2026 CodeQuest 100
+  </footer>
+
+</body>
+</html>
